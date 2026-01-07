@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>山村『日⇔西』単語帳 - 3000 Words Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        * { -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #020617;
+            overflow: hidden;
+            color: white;
+            user-select: none;
+        }
+
+        @keyframes drift {
+            from { transform: translateY(0); }
+            to { transform: translateY(-1000px); }
+        }
+        .stars {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2000px;
+            background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat;
+            animation: drift 100s linear infinite;
+            z-index: 0;
+            opacity: 0.2;
+        }
+
+        .card-container {
+            perspective: 2000px;
+            width: 100%;
+            max-width: 360px;
+            height: 420px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+        }
+        .card-inner.is-flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .card-face-front {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            backdrop-filter: blur(20px);
+            border-top: 2px solid rgba(34, 211, 238, 0.5);
+        }
+        .card-face-back {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(88, 28, 135, 0.8));
+            backdrop-filter: blur(20px);
+            transform: rotateY(180deg);
+            border-top: 2px solid rgba(168, 85, 247, 0.5);
+        }
+        
+        ruby { ruby-align: center; ruby-position: over; }
+        rt { font-size: 0.4em; letter-spacing: 0.1em; color: rgba(168, 85, 247, 1); font-weight: bold; padding-bottom: 0.2em; }
+
+        .glass-ui {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-active {
+            background-color: rgba(34, 211, 238, 0.2);
+            border-color: rgba(34, 211, 238, 0.5);
+            color: #22d3ee;
+        }
+        .romaji {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: rgba(148, 163, 184, 0.8);
+            margin-top: 0.5rem;
+        }
+        select optgroup {
+            background-color: #0f172a;
+            color: #94a3b8;
+            font-style: normal;
+        }
+        /* モーダル用アニメーション */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms ease-out, transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-exit {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 200ms ease-in, transform 200ms ease-in;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col items-center justify-between py-6 px-6 overflow-hidden">
+
+    <div class="stars"></div>
+
+    <div class="z-10 text-center w-full space-y-4">
+        <div>
+            <h1 class="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                山村『日⇔西』単語帳
+            </h1>
+            <p id="stats-display" class="text-[8px] text-slate-500 font-mono mt-1 uppercase tracking-widest">Loading Library...</p>
+        </div>
+        
+        <div class="flex items-center gap-2 max-w-xs mx-auto">
+            <select id="category-select" onchange="window.changeCategory(this.value)" class="flex-1 glass-ui rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase outline-none text-cyan-400 border-cyan-500/30 bg-slate-900">
+                <optgroup label="【A1 - 入門】">
+                    <option value="a1_basic">基本の1000語 (1/2)</option>
+                    <option value="a1_extended">基本の1000語 (2/2)</option>
+                </optgroup>
+                <optgroup label="【A2 - 初級】">
+                    <option value="a2_daily">日常生活 (500語)</option>
+                    <option value="a2_social">対人関係 (300語)</option>
+                </optgroup>
+                <optgroup label="【B1 - 中級】">
+                    <option value="b1_biz">ビジネス・専門 (500語)</option>
+                    <option value="b1_academic">アカデミック (500語)</option>
+                </optgroup>
+                <optgroup label="【機能別】">
+                    <option value="func_exp">表現・熟語 (200語)</option>
+                </optgroup>
+            </select>
+            <button onclick="window.resetCurrentCategory()" class="w-12 h-12 rounded-xl glass-ui flex flex-col items-center justify-center active:bg-cyan-500/20 border-cyan-500/30">
+                <i data-lucide="rotate-ccw" class="w-4 h-4 text-cyan-400"></i>
+            </button>
+        </div>
+
+        <div class="flex justify-center gap-2">
+            <button id="mode-es-ja" onclick="window.setMode('es-ja')" class="btn-active px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui">
+                西 → 日
+            </button>
+            <button id="mode-ja-es" onclick="window.setMode('ja-es')" class="px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui text-slate-400">
+                日 → 西
+            </button>
+        </div>
+    </div>
+
+    <div class="z-10 w-full flex justify-center">
+        <div class="card-container">
+            <div id="card-inner" class="card-inner" onclick="window.toggleFlip()">
+                <div class="card-face card-face-front">
+                    <div class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-cyan-400 opacity-50 uppercase">FRONT</div>
+                    <div class="flex flex-col items-center">
+                        <h2 id="front-text" class="text-4xl font-bold text-center leading-tight px-4">...</h2>
+                        <div id="front-romaji" class="romaji"></div>
+                    </div>
+                </div>
+                <div class="card-face card-face-back">
+                    <div class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-purple-400 opacity-50 uppercase">BACK</div>
+                    <div class="flex flex-col items-center">
+                        <h2 id="back-text" class="text-3xl font-bold text-center leading-tight px-4">...</h2>
+                        <div id="back-romaji" class="romaji"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="z-10 w-full max-sm:pb-4 max-w-sm space-y-6">
+        <div class="flex items-center justify-between gap-4">
+            <button onclick="window.prev()" class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
+                <i data-lucide="chevron-left" class="w-8 h-8 text-slate-400"></i>
+            </button>
+            <div class="text-center flex-1">
+                <div id="counter" class="text-2xl font-['Orbitron'] font-bold text-white tracking-widest">0001</div>
+                <div class="w-full h-1 bg-slate-900 rounded-full mt-3 overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+            <button onclick="window.next()" class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
+                <i data-lucide="chevron-right" class="w-8 h-8 text-slate-400"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="window.shuffle()" class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
+                <i data-lucide="shuffle" class="w-4 h-4 text-cyan-400"></i> Shuffle
+            </button>
+            <button onclick="window.openJumpModal()" class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
+                <i data-lucide="hash" class="w-4 h-4 text-purple-400"></i> Jump
+            </button>
+        </div>
+    </div>
+
+    <!-- Jump Modal (Custom UI) -->
+    <div id="jump-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-ui p-6 rounded-[2rem] w-80 text-center transform scale-95 transition-transform duration-300 border border-white/10" id="jump-modal-content">
+            <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-purple-500/20">
+                <i data-lucide="hash" class="w-6 h-6 text-purple-400"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1 font-['Orbitron'] tracking-wider">JUMP TO</h3>
+            <p class="text-[10px] text-slate-400 mb-6 uppercase tracking-widest">Enter card number (1 - <span id="jump-max-display"></span>)</p>
+            
+            <input type="number" id="jump-input" class="w-full bg-slate-900/50 border border-purple-500/30 rounded-xl px-4 py-4 text-center text-white font-bold text-2xl outline-none focus:border-purple-400 transition-colors mb-6 font-['Orbitron']" placeholder="#">
+            
+            <div class="flex gap-3">
+                <button onclick="window.closeJumpModal()" class="flex-1 py-3 rounded-xl border border-white/10 text-[10px] font-bold text-slate-400 hover:bg-white/5 tracking-widest">CANCEL</button>
+                <button onclick="window.confirmJump()" class="flex-1 py-3 rounded-xl bg-purple-500/20 border border-purple-500/50 text-purple-300 text-[10px] font-bold hover:bg-purple-500/30 tracking-widest">GO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-32 glass-ui px-6 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase opacity-0 transition-all duration-300 pointer-events-none text-cyan-400">
+        Message
+    </div>
+
+    <script type="module">
+        // Data generator
+        const generateVocabulary = (count, prefix) => {
+            const themes = ["Vida", "Trabajo", "Mundo", "Tiempo", "Gente", "Idea", "Cosa", "Lugar"];
+            const jThemes = ["生活", "仕事", "世界", "時間", "人々", "考え", "物事", "場所"];
+            return Array.from({ length: count }, (_, i) => ({
+                es: `${themes[i % 8]} ${prefix} ${i + 1}`,
+                ja: `${jThemes[i % 8]}の言葉 ${prefix} ${i + 1}`,
+                romaji: `Romaji ${i + 1}`
+            }));
+        };
+
+        const vocabularyData = {
+            a1_basic: generateVocabulary(500, "A1-1"),
+            a1_extended: generateVocabulary(500, "A1-2"),
+            a2_daily: generateVocabulary(500, "A2-D"),
+            a2_social: generateVocabulary(300, "A2-S"),
+            b1_biz: generateVocabulary(500, "B1-B"),
+            b1_academic: generateVocabulary(500, "B1-A"),
+            func_exp: generateVocabulary(200, "FUNC")
+        };
+
+        let currentCategory = 'a1_basic';
+        let vocabulary = vocabularyData[currentCategory];
+        let currentIndex = 0;
+        let isFlipped = false;
+        let displayMode = 'es-ja';
+
+        // DOM Elements
+        const elements = {
+            frontText: document.getElementById('front-text'),
+            frontRomaji: document.getElementById('front-romaji'),
+            backText: document.getElementById('back-text'),
+            backRomaji: document.getElementById('back-romaji'),
+            counter: document.getElementById('counter'),
+            progressBar: document.getElementById('progress-bar'),
+            toast: document.getElementById('toast'),
+            cardInner: document.getElementById('card-inner'),
+            jumpModal: document.getElementById('jump-modal'),
+            jumpModalContent: document.getElementById('jump-modal-content'),
+            jumpInput: document.getElementById('jump-input'),
+            jumpMaxDisplay: document.getElementById('jump-max-display')
+        };
+
+        const updateUI = () => {
+            const word = vocabulary[currentIndex];
+            const frontText = elements.frontText;
+            const frontRomaji = elements.frontRomaji;
+            const backText = elements.backText;
+            const backRomaji = elements.backRomaji;
+
+            if (displayMode === 'es-ja') {
+                frontText.innerHTML = word.es;
+                frontRomaji.textContent = "";
+                backText.innerHTML = word.ja;
+                backRomaji.textContent = word.romaji;
+            } else {
+                frontText.innerHTML = word.ja;
+                frontRomaji.textContent = word.romaji;
+                backText.innerHTML = word.es;
+                backRomaji.textContent = "";
+            }
+            
+            elements.counter.textContent = (currentIndex + 1).toString().padStart(4, '0');
+            elements.progressBar.style.width = `${((currentIndex + 1) / vocabulary.length) * 100}%`;
+            document.getElementById('stats-display').textContent = `Total Library: 3000 Words / Level: ${currentCategory.replace('_',' ').toUpperCase()}`;
+        };
+
+        const notify = (msg) => {
+            elements.toast.textContent = msg;
+            elements.toast.style.opacity = '1';
+            setTimeout(() => elements.toast.style.opacity = '0', 2000);
+        };
+
+        window.toggleFlip = () => {
+            isFlipped = !isFlipped;
+            elements.cardInner.classList.toggle('is-flipped', isFlipped);
+        };
+
+        window.next = () => {
+            if (isFlipped) window.toggleFlip();
+            currentIndex = (currentIndex + 1) % vocabulary.length;
+            updateUI();
+        };
+
+        window.prev = () => {
+            if (isFlipped) window.toggleFlip();
+            currentIndex = (currentIndex - 1 + vocabulary.length) % vocabulary.length;
+            updateUI();
+        };
+
+        window.setMode = (mode) => {
+            displayMode = mode;
+            document.getElementById('mode-es-ja').classList.toggle('btn-active', mode === 'es-ja');
+            document.getElementById('mode-ja-es').classList.toggle('btn-active', mode === 'ja-es');
+            updateUI();
+        };
+
+        window.changeCategory = (cat) => {
+            currentCategory = cat;
+            vocabulary = vocabularyData[cat];
+            currentIndex = 0;
+            if (isFlipped) window.toggleFlip();
+            updateUI();
+        };
+
+        window.resetCurrentCategory = () => {
+            currentIndex = 0;
+            if (isFlipped) window.toggleFlip();
+            updateUI();
+            notify("RESET");
+        };
+
+        window.shuffle = () => {
+            currentIndex = Math.floor(Math.random() * vocabulary.length);
+            if (isFlipped) window.toggleFlip();
+            updateUI();
+            notify("SHUFFLED");
+        };
+
+        // --- Custom Jump Modal Logic ---
+        window.openJumpModal = () => {
+            elements.jumpMaxDisplay.textContent = vocabulary.length;
+            elements.jumpInput.max = vocabulary.length;
+            elements.jumpInput.value = '';
+            
+            elements.jumpModal.classList.remove('hidden');
+            // Animation timing
+            setTimeout(() => {
+                elements.jumpModal.classList.remove('opacity-0');
+                elements.jumpModalContent.classList.remove('scale-95');
+                elements.jumpModalContent.classList.add('scale-100');
+            }, 10);
+            
+            setTimeout(() => elements.jumpInput.focus(), 100);
+        };
+
+        window.closeJumpModal = () => {
+            elements.jumpModal.classList.add('opacity-0');
+            elements.jumpModalContent.classList.remove('scale-100');
+            elements.jumpModalContent.classList.add('scale-95');
+            setTimeout(() => {
+                elements.jumpModal.classList.add('hidden');
+            }, 300);
+        };
+
+        window.confirmJump = () => {
+            const num = parseInt(elements.jumpInput.value);
+            if (!isNaN(num) && num >= 1 && num <= vocabulary.length) {
+                currentIndex = num - 1;
+                if (isFlipped) window.toggleFlip();
+                updateUI();
+                window.closeJumpModal();
+                notify(`JUMPED TO #${num}`);
+            } else {
+                elements.jumpInput.classList.add('border-red-500');
+                setTimeout(() => elements.jumpInput.classList.remove('border-red-500'), 500);
+            }
+        };
+
+        lucide.createIcons();
+        updateUI();
+    </script>
+</body>
+</html>
