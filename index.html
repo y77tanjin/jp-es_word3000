@@ -121,6 +121,9 @@
                     <option value="b1_biz">ビジネス 2001-2500</option>
                     <option value="b1_academic">アカデミック 2501-3000</option>
                 </optgroup>
+                <optgroup label="【機能別】">
+                    <option value="func_exp">表現・熟語 (200語)</option>
+                </optgroup>
             </select>
             <button id="btn-reset" class="w-12 h-12 rounded-xl glass-ui flex flex-col items-center justify-center active:bg-cyan-500/20 border-cyan-500/30">
                 <i data-lucide="rotate-ccw" class="w-4 h-4 text-cyan-400"></i>
@@ -146,7 +149,7 @@
                         <h2 id="front-text" class="text-4xl font-bold text-center leading-tight px-4">...</h2>
                         <div id="front-romaji" class="romaji"></div>
                     </div>
-                    <button id="speak-front" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-cyan-500/30">
+                    <button id="speak-front" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-cyan-500/30 active:scale-95 transition-transform">
                         <i data-lucide="volume-2" class="w-5 h-5 text-cyan-400"></i>
                     </button>
                 </div>
@@ -156,7 +159,7 @@
                         <h2 id="back-text" class="text-3xl font-bold text-center leading-tight px-4">...</h2>
                         <div id="back-romaji" class="romaji"></div>
                     </div>
-                    <button id="speak-back" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-purple-500/30">
+                    <button id="speak-back" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-purple-500/30 active:scale-95 transition-transform">
                         <i data-lucide="volume-2" class="w-5 h-5 text-purple-400"></i>
                     </button>
                 </div>
@@ -243,14 +246,14 @@
             const bRomaji = document.getElementById('back-romaji');
 
             if (mode === 'es-ja') {
-                front.textContent = word.es;
+                front.innerHTML = word.es;
                 fRomaji.textContent = "";
-                back.textContent = word.ja;
+                back.innerHTML = word.ja;
                 bRomaji.textContent = word.romaji;
             } else {
-                front.textContent = word.ja;
+                front.innerHTML = word.ja;
                 fRomaji.textContent = word.romaji;
-                back.textContent = word.es;
+                back.innerHTML = word.es;
                 bRomaji.textContent = "";
             }
 
@@ -264,6 +267,29 @@
             t.textContent = msg;
             t.style.opacity = '1';
             setTimeout(() => t.style.opacity = '0', 2000);
+        };
+
+        // --- TTS Helper: Extract readable text from HTML (Ruby) ---
+        const getSpeakText = (htmlContent, isJapanese) => {
+            const temp = document.createElement('div');
+            temp.innerHTML = htmlContent;
+            
+            // If not Japanese, just return plain text (Spanish usually doesn't have ruby)
+            if (!isJapanese) return temp.textContent;
+
+            let speakable = "";
+            // Extract only <rt> content if ruby exists, otherwise just text
+            // This prevents reading Kanji + Furigana (double reading)
+            const nodes = temp.childNodes;
+            nodes.forEach(node => {
+                if (node.nodeName === 'RUBY') {
+                    const rt = node.querySelector('rt');
+                    speakable += rt ? rt.textContent : node.textContent;
+                } else {
+                    speakable += node.textContent;
+                }
+            });
+            return speakable || temp.textContent;
         };
 
         // --- Event Listeners ---
@@ -290,98 +316,3 @@
                 setTimeout(() => { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }, 300);
             } else {
                 index = (index - 1 + vocabulary.length) % vocabulary.length;
-                update();
-            }
-        };
-
-        document.getElementById('category-select').onchange = (e) => {
-            currentCat = e.target.value;
-            vocabulary = vocabularyData[currentCat];
-            index = 0;
-            if (isFlipped) { isFlipped = false; document.getElementById('card-inner').classList.remove('is-flipped'); }
-            update();
-            toast(`LOADED: ${currentCat}`);
-        };
-
-        document.getElementById('mode-es-ja').onclick = () => {
-            mode = 'es-ja';
-            document.getElementById('mode-es-ja').classList.add('btn-active');
-            document.getElementById('mode-ja-es').classList.remove('btn-active');
-            update();
-        };
-
-        document.getElementById('mode-ja-es').onclick = () => {
-            mode = 'ja-es';
-            document.getElementById('mode-ja-es').classList.add('btn-active');
-            document.getElementById('mode-es-ja').classList.remove('btn-active');
-            update();
-        };
-
-        document.getElementById('btn-shuffle').onclick = () => {
-            index = Math.floor(Math.random() * vocabulary.length);
-            update();
-            toast("SHUFFLED");
-        };
-
-        document.getElementById('btn-reset').onclick = () => {
-            index = 0;
-            update();
-            toast("RESET");
-        };
-
-        // --- Jump Modal Logic ---
-        const modal = document.getElementById('jump-modal');
-        const modalContent = document.getElementById('jump-modal-content');
-
-        document.getElementById('btn-open-jump').onclick = () => {
-            document.getElementById('jump-max-display').textContent = vocabulary.length;
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-                document.getElementById('jump-input').focus();
-            }, 10);
-        };
-
-        document.getElementById('btn-jump-cancel').onclick = () => {
-            modal.classList.add('opacity-0');
-            modalContent.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        };
-
-        document.getElementById('btn-jump-confirm').onclick = () => {
-            const val = parseInt(document.getElementById('jump-input').value);
-            if (val >= 1 && val <= vocabulary.length) {
-                index = val - 1;
-                update();
-                document.getElementById('btn-jump-cancel').click();
-                toast(`JUMPED TO #${val}`);
-            }
-        };
-
-        // --- TTS ---
-        const speak = (text, lang) => {
-            if (!window.speechSynthesis) return;
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = lang;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(u);
-        };
-
-        document.getElementById('speak-front').onclick = (e) => {
-            e.stopPropagation();
-            const word = vocabulary[index];
-            speak(mode === 'es-ja' ? word.es : word.ja, mode === 'es-ja' ? 'es-ES' : 'ja-JP');
-        };
-
-        document.getElementById('speak-back').onclick = (e) => {
-            e.stopPropagation();
-            const word = vocabulary[index];
-            speak(mode === 'es-ja' ? word.ja : word.es, mode === 'es-ja' ? 'ja-JP' : 'es-ES');
-        };
-
-        lucide.createIcons();
-        update();
-    </script>
-</body>
-</html>
