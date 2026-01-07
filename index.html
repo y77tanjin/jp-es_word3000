@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>山村『日⇔西』単語帳 - 3000 Words Edition</title>
     
+    <!-- オリジナルファビコンの設定 -->
+    <link rel="icon" type="image/png" href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
+    <link rel="apple-touch-icon" href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -193,7 +197,7 @@
         </div>
     </div>
 
-    <!-- Jump Modal -->
+    <!-- ジャンプモーダル -->
     <div id="jump-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
         <div class="glass-ui p-6 rounded-[2rem] w-80 text-center transform scale-95 transition-transform duration-300 border border-white/10" id="jump-modal-content">
             <h3 class="text-lg font-bold text-white mb-1 font-['Orbitron'] tracking-wider">JUMP TO</h3>
@@ -211,9 +215,7 @@
     </div>
 
     <script>
-        // DOMの読み込み完了を待ってから実行
         window.addEventListener('DOMContentLoaded', () => {
-            // --- 山村『日⇔西』単語帳 実データ ---
             const rawVocabulary = {
                 a1_basic: [
                     { id: 1, es: "Hola", ja: "<ruby>こんにちは<rt>こんにちは</rt></ruby>", romaji: "Konnichiwa" },
@@ -252,7 +254,6 @@
                 ]
             };
 
-            // 足りない分を自動補完する関数
             const fillMissing = (dataMap) => {
                 const counts = { a1_basic: 500, a1_extended: 500, a2_daily: 500, a2_social: 500, b1_biz: 500, b1_academic: 500, func_exp: 200 };
                 const ranges = { a1_basic: 1, a1_extended: 501, a2_daily: 1001, a2_social: 1501, b1_biz: 2001, b1_academic: 2501, func_exp: 3001 };
@@ -282,7 +283,6 @@
             let isFlipped = false;
             let mode = 'es-ja';
 
-            // UI更新
             const update = () => {
                 const word = vocabulary[index];
                 if (!word) return;
@@ -343,7 +343,6 @@
                 toast("SPEAKING...");
             };
 
-            // イベントリスナーの登録
             document.getElementById('card-inner').addEventListener('click', () => {
                 isFlipped = !isFlipped;
                 document.getElementById('card-inner').classList.toggle('is-flipped', isFlipped);
@@ -445,7 +444,6 @@
                 speak(content, lang);
             });
 
-            // 初期化
             lucide.createIcons();
             update();
         });
