@@ -122,7 +122,7 @@
                     <option value="b1_academic">アカデミック 2501-3000</option>
                 </optgroup>
                 <optgroup label="【機能別】">
-                    <option value="func_exp">表現・熟語 (200語)</option>
+                    <option value="func_exp">表現・熟語</option>
                 </optgroup>
             </select>
             <button id="btn-reset" class="w-12 h-12 rounded-xl glass-ui flex flex-col items-center justify-center active:bg-cyan-500/20 border-cyan-500/30">
@@ -211,26 +211,70 @@
     </div>
 
     <script type="module">
-        // --- 語彙データ（各レベル500語、合計3000語） ---
-        const generateData = (count, startId, prefix) => {
-            // ここに実データを配列で定義できます
-            // デモ用に3000語分の枠を生成しています
-            return Array.from({ length: count }, (_, i) => ({
-                id: startId + i,
-                es: `${prefix} Palabra ${startId + i}`,
-                ja: `${prefix} 単語 ${startId + i}`,
-                romaji: `Tango ${startId + i}`
-            }));
+        // --- 山村『日⇔西』単語帳 実データ（サンプル。実際には3000語まで拡張可能） ---
+        const rawVocabulary = {
+            a1_basic: [
+                { id: 1, es: "Hola", ja: "<ruby>こんにちは<rt>こんにちは</rt></ruby>", romaji: "Konnichiwa" },
+                { id: 2, es: "Gracias", ja: "<ruby>有難<rt>ありがと</rt></ruby>う", romaji: "Arigatou" },
+                { id: 3, es: "Yo", ja: "<ruby>私<rt>わたし</rt></ruby>", romaji: "Watashi" },
+                { id: 4, es: "Tú", ja: "<ruby>あなた<rt>あなた</rt></ruby>", romaji: "Anata" },
+                { id: 5, es: "Comida", ja: "<ruby>食<rt>た</rt></ruby>べ<ruby>物<rt>もの</rt></ruby>", romaji: "Tabemono" },
+                { id: 6, es: "Agua", ja: "<ruby>水<rt>みず</rt></ruby>", romaji: "Mizu" },
+                { id: 7, es: "Libro", ja: "<ruby>本<rt>ほん</rt></ruby>", romaji: "Hon" },
+                { id: 8, es: "Escuela", ja: "<ruby>学校<rt>がっこう</rt></ruby>", romaji: "Gakkou" },
+                { id: 9, es: "Casa", ja: "<ruby>家<rt>いえ</rt></ruby>", romaji: "Ie" },
+                { id: 10, es: "Sol", ja: "<ruby>太陽<rt>たいよう</rt></ruby>", romaji: "Taiyou" }
+                // 必要に応じて500語まで追加
+            ],
+            a1_extended: [
+                { id: 501, es: "Viaje", ja: "<ruby>旅行<rt>りょこう</rt></ruby>", romaji: "Ryokou" },
+                { id: 502, es: "Amigo", ja: "<ruby>友達<rt>ともだち</rt></ruby>", romaji: "Tomodachi" },
+                { id: 503, es: "Tiempo", ja: "<ruby>時間<rt>じかん</rt></ruby>", romaji: "Jikan" }
+            ],
+            a2_daily: [
+                { id: 1001, es: "Desayuno", ja: "<ruby>朝食<rt>ちょうしょく</rt></ruby>", romaji: "Choushoku" },
+                { id: 1002, es: "Trabajo", ja: "<ruby>仕事<rt>しごと</rt></ruby>", romaji: "Shigoto" }
+            ],
+            a2_social: [
+                { id: 1501, es: "Sociedad", ja: "<ruby>社会<rt>しゃかい</rt></ruby>", romaji: "Shakai" }
+            ],
+            b1_biz: [
+                { id: 2001, es: "Empresa", ja: "<ruby>会社<rt>かいしゃ</rt></ruby>", romaji: "Kaisha" },
+                { id: 2002, es: "Inversión", ja: "<ruby>投資<rt>とうし</rt></ruby>", romaji: "Toushi" }
+            ],
+            b1_academic: [
+                { id: 2501, es: "Investigación", ja: "<ruby>研究<rt>けんきゅう</rt></ruby>", romaji: "Kenkyuu" }
+            ],
+            func_exp: [
+                { id: 3001, es: "Tal vez", ja: "<ruby>多分<rt>たぶん</rt></ruby>", romaji: "Tabun" },
+                { id: 3002, es: "Por supuesto", ja: "<ruby>勿論<rt>もちろん</rt></ruby>", romaji: "Mochiron" }
+            ]
         };
 
-        const vocabularyData = {
-            a1_basic: generateData(500, 1, "A1"),
-            a1_extended: generateData(500, 501, "A1+"),
-            a2_daily: generateData(500, 1001, "A2"),
-            a2_social: generateData(500, 1501, "A2+"),
-            b1_biz: generateData(500, 2001, "B1"),
-            b1_academic: generateData(500, 2501, "B1+")
+        // 足りない分を自動補完する関数（実際の3000語データを用意するまでのプレースホルダー）
+        const fillMissing = (dataMap) => {
+            const counts = { a1_basic: 500, a1_extended: 500, a2_daily: 500, a2_social: 500, b1_biz: 500, b1_academic: 500, func_exp: 200 };
+            const ranges = { a1_basic: 1, a1_extended: 501, a2_daily: 1001, a2_social: 1501, b1_biz: 2001, b1_academic: 2501, func_exp: 3001 };
+            
+            Object.keys(counts).forEach(cat => {
+                const targetCount = counts[cat];
+                const currentCount = dataMap[cat].length;
+                if (currentCount < targetCount) {
+                    for (let i = currentCount; i < targetCount; i++) {
+                        const id = ranges[cat] + i;
+                        dataMap[cat].push({
+                            id: id,
+                            es: `Palabra ${id}`,
+                            ja: `<ruby>単語<rt>たんご</rt></ruby> ${id}`,
+                            romaji: `Tango ${id}`
+                        });
+                    }
+                }
+            });
+            return dataMap;
         };
+
+        const vocabularyData = fillMissing(rawVocabulary);
 
         let currentCat = 'a1_basic';
         let vocabulary = vocabularyData[currentCat];
@@ -269,19 +313,12 @@
             setTimeout(() => t.style.opacity = '0', 2000);
         };
 
-        // --- TTS Helper: Extract readable text from HTML (Ruby) ---
         const getSpeakText = (htmlContent, isJapanese) => {
             const temp = document.createElement('div');
             temp.innerHTML = htmlContent;
-            
-            // If not Japanese, just return plain text (Spanish usually doesn't have ruby)
             if (!isJapanese) return temp.textContent;
-
             let speakable = "";
-            // Extract only <rt> content if ruby exists, otherwise just text
-            // This prevents reading Kanji + Furigana (double reading)
-            const nodes = temp.childNodes;
-            nodes.forEach(node => {
+            temp.childNodes.forEach(node => {
                 if (node.nodeName === 'RUBY') {
                     const rt = node.querySelector('rt');
                     speakable += rt ? rt.textContent : node.textContent;
@@ -292,7 +329,17 @@
             return speakable || temp.textContent;
         };
 
-        // --- Event Listeners ---
+        const speak = (rawHtml, lang) => {
+            if (!window.speechSynthesis) { toast("TTS NOT SUPPORTED"); return; }
+            window.speechSynthesis.cancel();
+            const textToSpeak = getSpeakText(rawHtml, lang === 'ja-JP');
+            const u = new SpeechSynthesisUtterance(textToSpeak);
+            u.lang = lang;
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+            toast("SPEAKING...");
+        };
+
         document.getElementById('card-inner').onclick = () => {
             isFlipped = !isFlipped;
             document.getElementById('card-inner').classList.toggle('is-flipped', isFlipped);
@@ -303,10 +350,7 @@
                 isFlipped = false;
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 setTimeout(() => { index = (index + 1) % vocabulary.length; update(); }, 300);
-            } else {
-                index = (index + 1) % vocabulary.length;
-                update();
-            }
+            } else { index = (index + 1) % vocabulary.length; update(); }
         };
 
         document.getElementById('btn-prev').onclick = () => {
@@ -314,5 +358,88 @@
                 isFlipped = false;
                 document.getElementById('card-inner').classList.remove('is-flipped');
                 setTimeout(() => { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }, 300);
-            } else {
-                index = (index - 1 + vocabulary.length) % vocabulary.length;
+            } else { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }
+        };
+
+        document.getElementById('category-select').onchange = (e) => {
+            currentCat = e.target.value;
+            vocabulary = vocabularyData[currentCat];
+            index = 0;
+            if (isFlipped) { isFlipped = false; document.getElementById('card-inner').classList.remove('is-flipped'); }
+            update();
+            toast(`LOADED: ${currentCat}`);
+        };
+
+        document.getElementById('mode-es-ja').onclick = () => {
+            mode = 'es-ja';
+            document.getElementById('mode-es-ja').classList.add('btn-active');
+            document.getElementById('mode-ja-es').classList.remove('btn-active');
+            update();
+        };
+
+        document.getElementById('mode-ja-es').onclick = () => {
+            mode = 'ja-es';
+            document.getElementById('mode-ja-es').classList.add('btn-active');
+            document.getElementById('mode-es-ja').classList.remove('btn-active');
+            update();
+        };
+
+        document.getElementById('btn-shuffle').onclick = () => {
+            index = Math.floor(Math.random() * vocabulary.length);
+            update();
+            toast("SHUFFLED");
+        };
+
+        document.getElementById('btn-reset').onclick = () => {
+            index = 0;
+            update();
+            toast("RESET");
+        };
+
+        const modal = document.getElementById('jump-modal');
+        const modalContent = document.getElementById('jump-modal-content');
+        document.getElementById('btn-open-jump').onclick = () => {
+            document.getElementById('jump-max-display').textContent = vocabulary.length;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                document.getElementById('jump-input').focus();
+            }, 10);
+        };
+        document.getElementById('btn-jump-cancel').onclick = () => {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+        document.getElementById('btn-jump-confirm').onclick = () => {
+            const val = parseInt(document.getElementById('jump-input').value);
+            if (val >= 1 && val <= vocabulary.length) {
+                index = val - 1;
+                update();
+                document.getElementById('btn-jump-cancel').click();
+                toast(`JUMPED TO #${val}`);
+            }
+        };
+
+        document.getElementById('speak-front').onclick = (e) => {
+            e.stopPropagation();
+            const word = vocabulary[index];
+            const content = mode === 'es-ja' ? word.es : word.ja;
+            const lang = mode === 'es-ja' ? 'es-ES' : 'ja-JP';
+            speak(content, lang);
+        };
+
+        document.getElementById('speak-back').onclick = (e) => {
+            e.stopPropagation();
+            const word = vocabulary[index];
+            const content = mode === 'es-ja' ? word.ja : word.es;
+            const lang = mode === 'es-ja' ? 'ja-JP' : 'es-ES';
+            speak(content, lang);
+        };
+
+        lucide.createIcons();
+        update();
+    </script>
+</body>
+</html>
