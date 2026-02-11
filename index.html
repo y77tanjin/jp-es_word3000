@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>山村『日⇔西』単語帳 - 3000 Words Edition</title>
-    
-    <!-- オリジナルファビコンの設定 -->
-    <link rel="icon" type="image/png" href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
-    <link rel="apple-touch-icon" href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
-    
+    <title>山村『日⇔西』単語帳 - Cloud Sync Edition</title>
+
+    <link rel="icon" type="image/png"
+        href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
+    <link rel="apple-touch-icon"
+        href="https://drive.google.com/uc?export=download&id=180AQNCjqhxGQ2xFPOaMOFtZ12Bn4Lq-L">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
 
-        * { -webkit-tap-highlight-color: transparent; }
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: 'Noto Sans JP', sans-serif;
             background-color: #020617;
@@ -23,25 +28,37 @@
             user-select: none;
         }
 
+        /* 背景のアニメーション星空 */
         @keyframes drift {
-            from { transform: translateY(0); }
-            to { transform: translateY(-1000px); }
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-1000px);
+            }
         }
+
         .stars {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 2000px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2000px;
             background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat;
             animation: drift 100s linear infinite;
             z-index: 0;
             opacity: 0.2;
         }
 
+        /* カードのスタイル */
         .card-container {
             perspective: 2000px;
             width: 100%;
             max-width: 360px;
             height: 420px;
         }
+
         .card-inner {
             position: relative;
             width: 100%;
@@ -50,7 +67,11 @@
             transform-style: preserve-3d;
             cursor: pointer;
         }
-        .card-inner.is-flipped { transform: rotateY(180deg); }
+
+        .card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
         .card-face {
             position: absolute;
             width: 100%;
@@ -63,33 +84,47 @@
             justify-content: center;
             padding: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
+
         .card-face-front {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
             backdrop-filter: blur(20px);
             border-top: 2px solid rgba(34, 211, 238, 0.5);
         }
+
         .card-face-back {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(88, 28, 135, 0.8));
             backdrop-filter: blur(20px);
             transform: rotateY(180deg);
             border-top: 2px solid rgba(168, 85, 247, 0.5);
         }
-        
-        ruby { ruby-align: center; ruby-position: over; }
-        rt { font-size: 0.4em; letter-spacing: 0.1em; color: rgba(168, 85, 247, 1); font-weight: bold; padding-bottom: 0.2em; }
+
+        ruby {
+            ruby-align: center;
+            ruby-position: over;
+        }
+
+        rt {
+            font-size: 0.4em;
+            letter-spacing: 0.1em;
+            color: rgba(168, 85, 247, 1);
+            font-weight: bold;
+            padding-bottom: 0.2em;
+        }
 
         .glass-ui {
             background: rgba(30, 41, 59, 0.5);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .btn-active {
             background-color: rgba(34, 211, 238, 0.2);
             border-color: rgba(34, 211, 238, 0.5);
             color: #22d3ee;
         }
+
         .romaji {
             font-family: 'Orbitron', sans-serif;
             font-size: 0.7rem;
@@ -99,46 +134,39 @@
         }
     </style>
 </head>
+
 <body class="h-screen w-full flex flex-col items-center justify-between py-6 px-6 overflow-hidden">
 
     <div class="stars"></div>
 
     <div class="z-10 text-center w-full space-y-4">
         <div>
-            <h1 class="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+            <h1
+                class="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
                 山村『日⇔西』単語帳
             </h1>
-            <p id="stats-display" class="text-[8px] text-slate-500 font-mono mt-1 uppercase tracking-widest">Loading Library...</p>
+            <p id="stats-display" class="text-[8px] text-slate-500 font-mono mt-1 uppercase tracking-widest">
+                Initialising Cloud Data...</p>
         </div>
-        
+
         <div class="flex items-center gap-2 max-w-xs mx-auto">
-            <select id="category-select" class="flex-1 glass-ui rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase outline-none text-cyan-400 border-cyan-500/30 bg-slate-900">
-                <optgroup label="【A1 - 入門】">
-                    <option value="a1_basic">基本 1-500</option>
-                    <option value="a1_extended">基本 501-1000</option>
-                </optgroup>
-                <optgroup label="【A2 - 初級】">
-                    <option value="a2_daily">日常生活 1001-1500</option>
-                    <option value="a2_social">社会生活 1501-2000</option>
-                </optgroup>
-                <optgroup label="【B1 - 中級】">
-                    <option value="b1_biz">ビジネス 2001-2500</option>
-                    <option value="b1_academic">アカデミック 2501-3000</option>
-                </optgroup>
-                <optgroup label="【機能別】">
-                    <option value="func_exp">表現・熟語</option>
-                </optgroup>
+            <select id="category-select"
+                class="flex-1 glass-ui rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase outline-none text-cyan-400 border-cyan-500/30 bg-slate-900">
+                <option value="">Connecting...</option>
             </select>
-            <button id="btn-reset" class="w-12 h-12 rounded-xl glass-ui flex flex-col items-center justify-center active:bg-cyan-500/20 border-cyan-500/30">
-                <i data-lucide="rotate-ccw" class="w-4 h-4 text-cyan-400"></i>
+            <button id="btn-sync"
+                class="w-12 h-12 rounded-xl glass-ui flex flex-col items-center justify-center active:bg-cyan-500/20 border-cyan-500/30">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-cyan-400"></i>
             </button>
         </div>
 
         <div class="flex justify-center gap-2">
-            <button id="mode-es-ja" class="btn-active px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui">
+            <button id="mode-es-ja"
+                class="btn-active px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui">
                 西 → 日
             </button>
-            <button id="mode-ja-es" class="px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui text-slate-400">
+            <button id="mode-ja-es"
+                class="px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold tracking-widest uppercase transition-all glass-ui text-slate-400">
                 日 → 西
             </button>
         </div>
@@ -148,22 +176,28 @@
         <div class="card-container">
             <div id="card-inner" class="card-inner">
                 <div class="card-face card-face-front">
-                    <div class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-cyan-400 opacity-50 uppercase">FRONT</div>
+                    <div
+                        class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-cyan-400 opacity-50 uppercase">
+                        FRONT</div>
                     <div class="flex flex-col items-center">
                         <h2 id="front-text" class="text-4xl font-bold text-center leading-tight px-4">読み込み中...</h2>
                         <div id="front-romaji" class="romaji"></div>
                     </div>
-                    <button id="speak-front" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-cyan-500/30 active:scale-95 transition-transform">
+                    <button id="speak-front"
+                        class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-cyan-500/30 active:scale-95 transition-transform">
                         <i data-lucide="volume-2" class="w-5 h-5 text-cyan-400"></i>
                     </button>
                 </div>
                 <div class="card-face card-face-back">
-                    <div class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-purple-400 opacity-50 uppercase">BACK</div>
+                    <div
+                        class="absolute top-8 left-8 text-[10px] font-bold tracking-widest text-purple-400 opacity-50 uppercase">
+                        BACK</div>
                     <div class="flex flex-col items-center">
                         <h2 id="back-text" class="text-3xl font-bold text-center leading-tight px-4">...</h2>
                         <div id="back-romaji" class="romaji"></div>
                     </div>
-                    <button id="speak-back" class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-purple-500/30 active:scale-95 transition-transform">
+                    <button id="speak-back"
+                        class="absolute bottom-10 w-12 h-12 rounded-full glass-ui flex items-center justify-center border-purple-500/30 active:scale-95 transition-transform">
                         <i data-lucide="volume-2" class="w-5 h-5 text-purple-400"></i>
                     </button>
                 </div>
@@ -171,383 +205,295 @@
         </div>
     </div>
 
-    <div class="z-10 w-full max-sm:pb-4 max-w-sm space-y-6">
+    <div class="z-10 w-full max-w-sm space-y-6">
         <div class="flex items-center justify-between gap-4">
-            <button id="btn-prev" class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
+            <button id="btn-prev"
+                class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
                 <i data-lucide="chevron-left" class="w-8 h-8 text-slate-400"></i>
             </button>
             <div class="text-center flex-1">
-                <div id="counter" class="text-2xl font-['Orbitron'] font-bold text-white tracking-widest">0001</div>
+                <div id="counter" class="text-2xl font-['Orbitron'] font-bold text-white tracking-widest">0000</div>
                 <div class="w-full h-1 bg-slate-900 rounded-full mt-3 overflow-hidden">
-                    <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 w-0 transition-all duration-300"></div>
+                    <div id="progress-bar"
+                        class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 w-0 transition-all duration-300">
+                    </div>
                 </div>
             </div>
-            <button id="btn-next" class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
+            <button id="btn-next"
+                class="w-16 h-16 rounded-3xl glass-ui flex items-center justify-center active:scale-90 transition-all">
                 <i data-lucide="chevron-right" class="w-8 h-8 text-slate-400"></i>
             </button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <button id="btn-shuffle" class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
+            <button id="btn-shuffle"
+                class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
                 <i data-lucide="shuffle" class="w-4 h-4 text-cyan-400"></i> Shuffle
             </button>
-            <button id="btn-open-jump" class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
+            <button id="btn-open-jump"
+                class="py-4 rounded-2xl glass-ui flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase active:scale-95 transition-all">
                 <i data-lucide="hash" class="w-4 h-4 text-purple-400"></i> Jump
             </button>
         </div>
     </div>
 
-    <!-- ジャンプモーダル -->
-    <div id="jump-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-ui p-6 rounded-[2rem] w-80 text-center transform scale-95 transition-transform duration-300 border border-white/10" id="jump-modal-content">
+    <div id="jump-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-ui p-6 rounded-[2rem] w-80 text-center transform scale-95 transition-transform duration-300 border border-white/10"
+            id="jump-modal-content">
             <h3 class="text-lg font-bold text-white mb-1 font-['Orbitron'] tracking-wider">JUMP TO</h3>
-            <p class="text-[10px] text-slate-400 mb-6 uppercase tracking-widest">番号を入力 (1 - <span id="jump-max-display"></span>)</p>
-            <input type="number" id="jump-input" class="w-full bg-slate-900/50 border border-purple-500/30 rounded-xl px-4 py-4 text-center text-white font-bold text-2xl outline-none mb-6 font-['Orbitron']" placeholder="#">
+            <p class="text-[10px] text-slate-400 mb-6 uppercase tracking-widest">番号を入力 (1 - <span
+                    id="jump-max-display"></span>)</p>
+            <input type="number" id="jump-input"
+                class="w-full bg-slate-900/50 border border-purple-500/30 rounded-xl px-4 py-4 text-center text-white font-bold text-2xl outline-none mb-6 font-['Orbitron']"
+                placeholder="#">
             <div class="flex gap-3">
-                <button id="btn-jump-cancel" class="flex-1 py-3 rounded-xl border border-white/10 text-[10px] font-bold text-slate-400 tracking-widest uppercase">CANCEL</button>
-                <button id="btn-jump-confirm" class="flex-1 py-3 rounded-xl bg-purple-500/20 border border-purple-500/50 text-purple-300 text-[10px] font-bold tracking-widest uppercase">GO</button>
+                <button id="btn-jump-cancel"
+                    class="flex-1 py-3 rounded-xl border border-white/10 text-[10px] font-bold text-slate-400 tracking-widest uppercase">CANCEL</button>
+                <button id="btn-jump-confirm"
+                    class="flex-1 py-3 rounded-xl bg-purple-500/20 border border-purple-500/50 text-purple-300 text-[10px] font-bold tracking-widest uppercase">GO</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-32 glass-ui px-6 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase opacity-0 transition-all duration-300 pointer-events-none text-cyan-400">
+    <div id="toast"
+        class="fixed bottom-32 glass-ui px-6 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase opacity-0 transition-all duration-300 pointer-events-none text-cyan-400">
         Message
     </div>
 
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const rawVocabulary = {
-                a1_basic: [
-  { id: 1, es: "Bienvenida", ja: "<ruby>ようこそ<rt>ようこそ</rt></ruby>", romaji: "Youkoso" },
-  { id: 2, es: "Mucho gusto", ja: "<ruby>はじめまして<rt>はじめまして</rt></ruby>", romaji: "Hajimemashite" },
-  { id: 3, es: "Encantada", ja: "<ruby>はじめまして<rt>はじめまして</rt></ruby>", romaji: "Hajimemashite" },
-  { id: 4, es: "Hasta Luego", ja: "<ruby>またね<rt>またね</rt></ruby>", romaji: "Matane" },
-  { id: 5, es: "Quiero", ja: "<ruby>欲<rt>ほ</rt>しい</ruby>", romaji: "Hoshii" },
-  { id: 6, es: "Trabajo", ja: "<ruby>仕事<rt>しごと</rt></ruby>", romaji: "Shigoto" },
-  { id: 7, es: "En realidad", ja: "<ruby>実<rt>じつ</rt>は</ruby>", romaji: "Jitsuwa" },
-  { id: 8, es: "Solamente", ja: "<ruby>ただ＿だけ<rt>ただ＿だけ</rt></ruby>", romaji: "Tada_dake" },
-  { id: 9, es: "Tambien", ja: "<ruby>も　でも<rt>も　でも</rt></ruby>", romaji: "Mo demo" },
-  { id: 10, es: "esposa", ja: "<ruby>妻<rt>つま</rt></ruby>", romaji: "Tsuma" },
-  { id: 11, es: "Abuelo", ja: "<ruby>祖父<rt>そふ</rt></ruby>", romaji: "Sofu" },
-  { id: 12, es: "Abuela", ja: "<ruby>祖母<rt>そぼ</rt></ruby>", romaji: "Sobo" },
-  { id: 13, es: "Timida", ja: "<ruby>内気<rt>うちき</rt></ruby>", romaji: "Uchiki" },
-  { id: 14, es: "Creo que", ja: "<ruby>…だと思<rt>おも</rt>います</ruby>", romaji: "...to omoimasu" },
-  { id: 15, es: "Simpatica", ja: "<ruby>親切<rt>しんせつ</rt></ruby>", romaji: "Shinsetsu" },
-  { id: 16, es: "Novio", ja: "<ruby>ボーイフレンド<rt>ぼーいふれんど</rt></ruby>", romaji: "Boifurendo" },
-  { id: 17, es: "Novia", ja: "<ruby>ガールフレンド<rt>がーるふれんど</rt></ruby>", romaji: "Garufurendo" },
-  { id: 18, es: "Como es", ja: "<ruby>どうですか？<rt>どうですか？</rt></ruby>", romaji: "Dou desu ka?" },
-  { id: 19, es: "Graciosa", ja: "<ruby>面白い<rt>おもしろい</rt></ruby>", romaji: "Omoshiroi" },
-  { id: 20, es: "Seria", ja: "<ruby>真面目<rt>まじめ</rt></ruby>", romaji: "Majime" },
-  { id: 21, es: "Pero", ja: "<ruby>だけど<rt>だけど</rt></ruby>", romaji: "Dakedo" },
-  { id: 22, es: "No crees", ja: "<ruby>そうおもいませんか？<rt>そうおもいませんか？</rt></ruby>", romaji: "Sou omoimasen ka?" },
-  { id: 23, es: "Tranquilo", ja: "<ruby>安心<rt>あんしん</rt>して</ruby>", romaji: "Anshin shite" },
-  { id: 24, es: "Esta aqui", ja: "<ruby>ここです<rt>ここです</rt></ruby>", romaji: "Koko desu" },
-  { id: 25, es: "Esta", ja: "<ruby>～には<rt>～には</rt></ruby>", romaji: "~ ni wa" },
-  { id: 26, es: "Pasaporte", ja: "<ruby>パスポート<rt>ぱすぽーと</rt></ruby>", romaji: "Pasupoto" },
-  { id: 27, es: "Vestido", ja: "<ruby>ドレス<rt>どれす</rt></ruby>", romaji: "Doresu" },
-  { id: 28, es: "Cartera", ja: "<ruby>財布<rt>さいふ</rt></ruby>", romaji: "Saifu" },
-  { id: 29, es: "Sueter", ja: "<ruby>セーター<rt>せーたー</rt></ruby>", romaji: "Seta" },
-  { id: 30, es: "chaqueta", ja: "<ruby>ジャケット<rt>じゃけっと</rt></ruby>", romaji: "Jaketto" },
-  { id: 31, es: "Donde", ja: "<ruby>どこ<rt>どこ</rt></ruby>", romaji: "Doko" },
-  { id: 32, es: "Reloj", ja: "<ruby>腕時計<rt>うでどけい</rt></ruby>", romaji: "Udedokei" },
-  { id: 33, es: "Libro", ja: "<ruby>本<rt>ほん</rt></ruby>", romaji: "Hon" },
-  { id: 34, es: "Tableta", ja: "<ruby>タブレット<rt>たぶれっと</rt></ruby>", romaji: "Taburetto" },
-  { id: 35, es: "Mochila", ja: "<ruby>リュック<rt>りゅっく</rt></ruby>", romaji: "Ryukku" },
-  { id: 36, es: "Cargador", ja: "<ruby>充電器<rt>じゅうでんき</rt></ruby>", romaji: "Juudenki" },
-  { id: 37, es: "Gorra", ja: "<ruby>キャップ<rt>きゃっぷ</rt></ruby>", romaji: "Kyappu" },
-  { id: 38, es: "No Encuentro", ja: "<ruby>みつからない<rt>みつからない</rt></ruby>", romaji: "Mitsukaranai" },
-  { id: 39, es: "Maleta", ja: "<ruby>スーツケース<rt>すーつけーす</rt></ruby>", romaji: "Sutsukesu" },
-  { id: 40, es: "Pues", ja: "<ruby>それでは<rt>それでは</rt></ruby>", romaji: "Sore de wa" },
-  { id: 41, es: "Hay", ja: "<ruby>あります<rt>あります</rt></ruby>", romaji: "Arimasu" },
-  { id: 42, es: "Tienda", ja: "<ruby>店<rt>みせ</rt></ruby>", romaji: "Mise" },
-  { id: 43, es: "Por aqui", ja: "<ruby>このあたり<rt>このあたり</rt></ruby>", romaji: "Kono atari" },
-  { id: 44, es: "Banco", ja: "<ruby>銀行<rt>ぎんこう</rt></ruby>", romaji: "Ginkou" },
-  { id: 45, es: "Museo", ja: "<ruby>美術館<rt>びじゅつかん</rt></ruby>", romaji: "Bijutsukan" },
-  { id: 46, es: "Estacion", ja: "<ruby>駅<rt>えき</rt></ruby>", romaji: "Eki" },
-  { id: 47, es: "Metro", ja: "<ruby>地下鉄<rt>ちかてつ</rt></ruby>", romaji: "Chikatetsu" },
-  { id: 48, es: "Teatro", ja: "<ruby>劇場<rt>げきじょう</rt></ruby>", romaji: "Gekijou" },
-  { id: 49, es: "Parque", ja: "<ruby>公園<rt>こうえん</rt></ruby>", romaji: "Kouen" },
-  { id: 50, es: "centro comercial", ja: "<ruby>ショッピングモール<rt>しょっぴんぐもーる</rt></ruby>", romaji: "Shoppingu moru" },
-  { id: 51, es: "Cerca", ja: "<ruby>近く<rt>ちかく</rt></ruby>", romaji: "Chikaku" },
-  { id: 52, es: "Oye", ja: "<ruby>ねえ<rt>ねえ</rt></ruby>", romaji: "Nee" },
-  { id: 53, es: "Mira", ja: "<ruby>ほら<rt>ほら</rt></ruby>", romaji: "Hora" },
-  { id: 54, es: "En", ja: "<ruby>に<rt>に</rt></ruby>", romaji: "Ni" },
-  { id: 55, es: "Ciudad", ja: "<ruby>都市<rt>とし</rt></ruby>", romaji: "Toshi" },
-  { id: 56, es: "Barrio", ja: "<ruby>地区<rt>ちく</rt></ruby>", romaji: "Chiku" },
-  { id: 57, es: "Pueblo", ja: "<ruby>村<rt>むら</rt></ruby>", romaji: "Mura" },
-  { id: 58, es: "Estacionamiento", ja: "<ruby>駐車場<rt>ちゅうしゃじょう</rt></ruby>", romaji: "Chuushajou" },
-  { id: 59, es: "Libreria", ja: "<ruby>本屋<rt>ほんや</rt></ruby>", romaji: "Honya" },
-  { id: 60, es: "Escuela", ja: "<ruby>学校<rt>がっこう</rt></ruby>", romaji: "Gakkou" },
-  { id: 61, es: "Estudio(as)", ja: "<ruby>勉強<rt>べんきょう</rt>する　自分と他人</ruby>", romaji: "Benkyou suru" },
-  { id: 62, es: "Estudias", ja: "<ruby>勉強<rt>べんきょう</rt>します</ruby>", romaji: "Benkyou shimasu" },
-  { id: 63, es: "Genial", ja: "<ruby>すごい<rt>すごい</rt></ruby>", romaji: "Sugoi" },
-  { id: 64, es: "Hablo (as)", ja: "<ruby>話<rt>はな</rt>します　自分と他人</ruby>", romaji: "Hanashimasu" },
-  { id: 65, es: "Poco", ja: "<ruby>少し<rt>すこし</rt></ruby>", romaji: "Sukoshi" },
-  { id: 66, es: "Guau", ja: "<ruby>わぁ<rt>わぁ</rt></ruby>", romaji: "Waa" },
-  { id: 67, es: "Por la Manana", ja: "<ruby>朝<rt>あさ</rt>に</ruby>", romaji: "Asa ni" },
-  { id: 68, es: "Por la noche", ja: "<ruby>夜<rt>よる</rt>に</ruby>", romaji: "Yoru ni" },
-  { id: 69, es: "Arte", ja: "<ruby>アート<rt>あーと</rt></ruby>", romaji: "Ato" },
-  { id: 70, es: "Musica", ja: "<ruby>音楽<rt>おんがく</rt></ruby>", romaji: "Ongaku" },
-  { id: 71, es: "Ingles", ja: "<ruby>英語<rt>えいご</rt></ruby>", romaji: "Eigo" },
-  { id: 72, es: "Frances", ja: "<ruby>フランス語<rt>ふらんすご</rt></ruby>", romaji: "Furansugo" },
-  { id: 73, es: "Muy bien", ja: "<ruby>とても上手<rt>じょうず</rt></ruby>", romaji: "Totemo jouzu" },
-  { id: 74, es: "Portugues", ja: "<ruby>ポルトガル語<rt>ぽるとがるご</rt></ruby>", romaji: "Porutogarugo" },
-  { id: 75, es: "Espanol", ja: "<ruby>スペイン語<rt>すぺいんご</rt></ruby>", romaji: "Supeingo" },
-  { id: 76, es: "Frio", ja: "<ruby>寒い<rt>さむい</rt></ruby>", romaji: "Samui" },
-  { id: 77, es: "Abrigo", ja: "<ruby>コート<rt>こーと</rt></ruby>", romaji: "Koto" },
-  { id: 78, es: "Uso", ja: "<ruby>使<rt>つか</rt>います</ruby>", romaji: "Tsukaimasu" },
-  { id: 79, es: "Viento", ja: "<ruby>風<rt>かぜ</rt></ruby>", romaji: "Kaze" },
-  { id: 80, es: "Hace", ja: "<ruby>です・する<rt>です・する</rt></ruby>", romaji: "desu/suru" },
-  { id: 81, es: "Otono", ja: "<ruby>秋<rt>あき</rt></ruby>", romaji: "Aki" },
-  { id: 82, es: "Verano", ja: "<ruby>夏<rt>なつ</rt></ruby>", romaji: "Natsu" },
-  { id: 83, es: "Calor", ja: "<ruby>暑い<rt>あつい</rt></ruby>", romaji: "Atsui" },
-  { id: 84, es: "Enero", ja: "<ruby>1月<rt>いちがつ</rt></ruby>", romaji: "Ichigatsu" },
-  { id: 85, es: "Ahora", ja: "<ruby>今頃<rt>いまごろ</rt></ruby>", romaji: "Imagoro" },
-  { id: 86, es: "Traje de bano", ja: "<ruby>水着<rt>みずぎ</rt></ruby>", romaji: "Mizugi" },
-  { id: 87, es: "Julio", ja: "<ruby>7月<rt>しちがつ</rt></ruby>", romaji: "Shichigatsu" },
-  { id: 88, es: "Hoy", ja: "<ruby>今日<rt>きょう</rt></ruby>", romaji: "Kyou" },
-  { id: 89, es: "Marzo", ja: "<ruby>3月<rt>さんがつ</rt></ruby>", romaji: "Sangatsu" },
-  { id: 90, es: "Septiembre", ja: "<ruby>9月<rt>くがつ</rt></ruby>", romaji: "Kugatsu" },
-  { id: 91, es: "Pais", ja: "<ruby>国<rt>くに</rt></ruby>", romaji: "Kuni" },
-  { id: 92, es: "Primavera", ja: "<ruby>春<rt>はる</rt></ruby>", romaji: "Haru" },
-  { id: 93, es: "Hace sol", ja: "<ruby>晴<rt>は</rt>れています</ruby>", romaji: "Hare te imasu" },
-  { id: 94, es: "Diciembre", ja: "<ruby>12月<rt>じゅうにがつ</rt></ruby>", romaji: "Juunigatsu" },
-  { id: 95, es: "Buen tiempo", ja: "<ruby>天気<rt>てんき</rt>が良い</ruby>", romaji: "Tenki ga yoi" },
-  { id: 96, es: "Invierno", ja: "<ruby>冬<rt>ふゆ</rt></ruby>", romaji: "Fuyu" },
-  { id: 97, es: "Octubre", ja: "<ruby>10月<rt>じゅうがつ</rt></ruby>", romaji: "Juugatsu" },
-  { id: 98, es: "Alli", ja: "<ruby>あそこ<rt>あそこ</rt></ruby>", romaji: "Asoko" },
-  { id: 99, es: "Una sandia", ja: "<ruby>スイカ<rt>すいか</rt></ruby>", romaji: "Suika" },
-  { id: 100, es: "Una pina", ja: "<ruby>パイナップル<rt>ぱいなっぷる</rt></ruby>", romaji: "Painappuru" },
-  { id: 101, es: "Mercado", ja: "<ruby>市場<rt>いちば</rt></ruby>", romaji: "Ichiba" },
-  { id: 102, es: "Una bolsa", ja: "<ruby>袋<rt>ふくろ</rt></ruby>", romaji: "Fukuro" },
-  { id: 103, es: "Necesito (as)", ja: "<ruby>必要<rt>ひつよう</rt>　自分と他人</ruby>", romaji: "Hitsuyou" },
-  { id: 104, es: "Durazno", ja: "<ruby>もも<rt>もも</rt></ruby>", romaji: "Momo" },
-  { id: 105, es: "Cuanto cuesta", ja: "<ruby>いくら？<rt>いくら？</rt></ruby>", romaji: "Ikura?" },
-  { id: 106, es: "Mas", ja: "<ruby>もっと<rt>もっと</rt></ruby>", romaji: "Motto" },
-  { id: 107, es: "Botella", ja: "<ruby>ボトル（女）<rt>ぼとる</rt></ruby>", romaji: "Botoru" },
-  { id: 108, es: "Naranja", ja: "<ruby>オレンジ<rt>おれんじ</rt></ruby>", romaji: "Orenji" },
-  { id: 109, es: "Pinas", ja: "<ruby>パイナップル（女）<rt>ぱいなっぷる</rt></ruby>", romaji: "Painappuru" },
-  { id: 110, es: "Cuanto cuestan", ja: "<ruby>いくらですか？<rt>いくらですか？</rt></ruby>", romaji: "Ikura desu ka?" },
-  { id: 111, es: "Este", ja: "<ruby>この・このような<rt>この・このような</rt></ruby>", romaji: "Kono / Kono you na" }
-],
-                a1_extended: [
-                    { id: 501, es: "Viaje", ja: "<ruby>旅行<rt>りょこう</rt></ruby>", romaji: "Ryokou" },
-                    { id: 502, es: "Amigo", ja: "<ruby>友達<rt>ともだち</rt></ruby>", romaji: "Tomodachi" },
-                    { id: 503, es: "Tiempo", ja: "<ruby>時間<rt>じかん</rt></ruby>", romaji: "Jikan" }
-                ],
-                a2_daily: [
-                    { id: 1001, es: "Desayuno", ja: "<ruby>朝食<rt>ちょうしょく</rt></ruby>", romaji: "Choushoku" },
-                    { id: 1002, es: "Trabajo", ja: "<ruby>仕事<rt>しごと</rt></ruby>", romaji: "Shigoto" }
-                ],
-                a2_social: [
-                    { id: 1501, es: "Sociedad", ja: "<ruby>社会<rt>しゃかい</rt></ruby>", romaji: "Shakai" }
-                ],
-                b1_biz: [
-                    { id: 2001, es: "Empresa", ja: "<ruby>会社<rt>かいしゃ</rt></ruby>", romaji: "Kaisha" },
-                    { id: 2002, es: "Inversión", ja: "<ruby>投資<rt>とうし</rt></ruby>", romaji: "Toushi" }
-                ],
-                b1_academic: [
-                    { id: 2501, es: "Investigación", ja: "<ruby>研究<rt>けんきゅう</rt></ruby>", romaji: "Kenkyuu" }
-                ],
-                func_exp: [
-                    { id: 3001, es: "Tal vez", ja: "<ruby>多分<rt>たぶん</rt></ruby>", romaji: "Tabun" },
-                    { id: 3002, es: "Por supuesto", ja: "<ruby>勿論<rt>もちろん</rt></ruby>", romaji: "Mochiron" }
-                ]
-            };
+        // デプロイIDに基づいたウェブアプリのURL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnDFdkIKNT0-ajYvc31cZ8Bg9xuCRCeSTZa1iX5eJ5CUgYvT_gmyi-2DHQMJ1i11gB/exec";
 
-            const fillMissing = (dataMap) => {
-                const counts = { a1_basic: 500, a1_extended: 500, a2_daily: 500, a2_social: 500, b1_biz: 500, b1_academic: 500, func_exp: 200 };
-                const ranges = { a1_basic: 1, a1_extended: 501, a2_daily: 1001, a2_social: 1501, b1_biz: 2001, b1_academic: 2501, func_exp: 3001 };
-                
-                Object.keys(counts).forEach(cat => {
-                    const targetCount = counts[cat];
-                    const currentCount = dataMap[cat].length;
-                    if (currentCount < targetCount) {
-                        for (let i = currentCount; i < targetCount; i++) {
-                            const id = ranges[cat] + i;
-                            dataMap[cat].push({
-                                id: id,
-                                es: `Palabra ${id}`,
-                                ja: `<ruby>単語<rt>たんご</rt></ruby> ${id}`,
-                                romaji: `Tango ${id}`
-                            });
-                        }
-                    }
-                });
-                return dataMap;
-            };
+        let vocabularyData = {};
+        let currentCat = '';
+        let vocabulary = [];
+        let index = 0;
+        let isFlipped = false;
+        let mode = 'es-ja';
 
-            const vocabularyData = fillMissing(rawVocabulary);
-            let currentCat = 'a1_basic';
-            let vocabulary = vocabularyData[currentCat];
-            let index = 0;
-            let isFlipped = false;
-            let mode = 'es-ja';
+        // スプレッドシートからデータを取得
+        async function fetchSheetData() {
+            const stats = document.getElementById('stats-display');
+            stats.textContent = "SYNCING WITH CLOUD...";
 
-            const update = () => {
-                const word = vocabulary[index];
-                if (!word) return;
+            try {
+                // GAS側の doGet(e) で fetch パラメータを判別するために付与
+                const response = await fetch(GAS_URL + "?fetch=true");
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
 
-                const frontText = document.getElementById('front-text');
-                const frontRomaji = document.getElementById('front-romaji');
-                const backText = document.getElementById('back-text');
-                const backRomaji = document.getElementById('back-romaji');
+                vocabularyData = data;
 
-                if (mode === 'es-ja') {
-                    frontText.innerHTML = word.es;
-                    frontRomaji.textContent = "";
-                    backText.innerHTML = word.ja;
-                    backRomaji.textContent = word.romaji;
-                } else {
-                    frontText.innerHTML = word.ja;
-                    frontRomaji.textContent = word.romaji;
-                    backText.innerHTML = word.es;
-                    backRomaji.textContent = "";
-                }
+                // カテゴリセレクトボックスを動的に生成
+                const select = document.getElementById('category-select');
+                const prevValue = select.value;
+                select.innerHTML = '';
 
-                document.getElementById('counter').textContent = (index + 1).toString().padStart(4, '0');
-                document.getElementById('progress-bar').style.width = `${((index + 1) / vocabulary.length) * 100}%`;
-                document.getElementById('stats-display').textContent = `3000 WORDS LIB | ${currentCat.toUpperCase()}`;
-            };
-
-            const toast = (msg) => {
-                const t = document.getElementById('toast');
-                t.textContent = msg;
-                t.style.opacity = '1';
-                setTimeout(() => t.style.opacity = '0', 2000);
-            };
-
-            const getSpeakText = (htmlContent, isJapanese) => {
-                const temp = document.createElement('div');
-                temp.innerHTML = htmlContent;
-                if (!isJapanese) return temp.textContent;
-                let speakable = "";
-                temp.childNodes.forEach(node => {
-                    if (node.nodeName === 'RUBY') {
-                        const rt = node.querySelector('rt');
-                        speakable += rt ? rt.textContent : node.textContent;
+                const categories = Object.keys(vocabularyData);
+                categories.forEach((cat) => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    // シート名から数字を抽出して整形 (例: "01入門" -> "SECTION 01")
+                    const match = cat.match(/^(\d+)/);
+                    if (match) {
+                        opt.textContent = `SECTION ${match[1]}`;
                     } else {
-                        speakable += node.textContent;
+                        opt.textContent = cat;
                     }
+                    select.appendChild(opt);
                 });
-                return speakable || temp.textContent;
-            };
 
-            const speak = (rawHtml, lang) => {
-                if (!window.speechSynthesis) { toast("TTS NOT SUPPORTED"); return; }
-                window.speechSynthesis.cancel();
-                const textToSpeak = getSpeakText(rawHtml, lang === 'ja-JP');
-                const u = new SpeechSynthesisUtterance(textToSpeak);
-                u.lang = lang;
-                u.rate = 0.9;
-                window.speechSynthesis.speak(u);
-                toast("SPEAKING...");
-            };
+                const categories = Object.keys(vocabularyData);
+                categories.forEach((cat) => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    // シート名から数字を抽出して整形 (例: "01入門" -> "SECTION 01")
+                    const match = cat.match(/^(\d+)/);
+                    if (match) {
+                        opt.textContent = `SECTION ${match[1]}`;
+                    } else {
+                        opt.textContent = cat;
+                    }
+                    select.appendChild(opt);
+                });
 
-            document.getElementById('card-inner').addEventListener('click', () => {
-                isFlipped = !isFlipped;
-                document.getElementById('card-inner').classList.toggle('is-flipped', isFlipped);
-            });
+                // カテゴリの復元または初期化
+                if (prevValue && vocabularyData[prevValue]) {
+                    select.value = prevValue;
+                    currentCat = prevValue;
+                } else {
+                    currentCat = categories[0];
+                }
 
-            document.getElementById('btn-next').addEventListener('click', () => {
-                if (isFlipped) {
-                    isFlipped = false;
-                    document.getElementById('card-inner').classList.remove('is-flipped');
-                    setTimeout(() => { index = (index + 1) % vocabulary.length; update(); }, 300);
-                } else { index = (index + 1) % vocabulary.length; update(); }
-            });
-
-            document.getElementById('btn-prev').addEventListener('click', () => {
-                if (isFlipped) {
-                    isFlipped = false;
-                    document.getElementById('card-inner').classList.remove('is-flipped');
-                    setTimeout(() => { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }, 300);
-                } else { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }
-            });
-
-            document.getElementById('category-select').addEventListener('change', (e) => {
-                currentCat = e.target.value;
                 vocabulary = vocabularyData[currentCat];
-                index = 0;
-                if (isFlipped) { isFlipped = false; document.getElementById('card-inner').classList.remove('is-flipped'); }
                 update();
-                toast(`LOADED: ${currentCat}`);
-            });
+                toast("CLOUD SYNC COMPLETE");
+            } catch (e) {
+                console.error("Sync Error:", e);
+                stats.textContent = "CONNECTION ERROR";
+                toast("SYNC FAILED");
+            }
+        }
 
-            document.getElementById('mode-es-ja').addEventListener('click', () => {
-                mode = 'es-ja';
-                document.getElementById('mode-es-ja').classList.add('btn-active');
-                document.getElementById('mode-ja-es').classList.remove('btn-active');
-                update();
-            });
+        const update = () => {
+            if (!vocabulary || vocabulary.length === 0) return;
+            const word = vocabulary[index];
+            const frontText = document.getElementById('front-text');
+            const frontRomaji = document.getElementById('front-romaji');
+            const backText = document.getElementById('back-text');
+            const backRomaji = document.getElementById('back-romaji');
 
-            document.getElementById('mode-ja-es').addEventListener('click', () => {
-                mode = 'ja-es';
-                document.getElementById('mode-ja-es').classList.add('btn-active');
-                document.getElementById('mode-es-ja').classList.remove('btn-active');
-                update();
-            });
+            if (mode === 'es-ja') {
+                frontText.innerHTML = word.es;
+                frontRomaji.textContent = "";
+                backText.innerHTML = word.ja;
+                backRomaji.textContent = word.romaji || "";
+            } else {
+                frontText.innerHTML = word.ja;
+                frontRomaji.textContent = word.romaji || "";
+                backText.innerHTML = word.es;
+                backRomaji.textContent = "";
+            }
 
-            document.getElementById('btn-shuffle').addEventListener('click', () => {
-                index = Math.floor(Math.random() * vocabulary.length);
-                update();
-                toast("SHUFFLED");
-            });
+            document.getElementById('counter').textContent = (index + 1).toString().padStart(4, '0');
+            document.getElementById('progress-bar').style.width = `${((index + 1) / vocabulary.length) * 100}%`;
+            document.getElementById('stats-display').textContent = `LIVE DATA | ${currentCat.toUpperCase()} | ${vocabulary.length} WORDS`;
+        };
 
-            document.getElementById('btn-reset').addEventListener('click', () => {
-                index = 0;
-                update();
-                toast("RESET");
-            });
+        const toast = (msg) => {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 2000);
+        };
 
-            const modal = document.getElementById('jump-modal');
-            const modalContent = document.getElementById('jump-modal-content');
-            
-            document.getElementById('btn-open-jump').addEventListener('click', () => {
-                document.getElementById('jump-max-display').textContent = vocabulary.length;
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modalContent.classList.remove('scale-95');
-                    document.getElementById('jump-input').focus();
-                }, 10);
-            });
-
-            document.getElementById('btn-jump-cancel').addEventListener('click', () => {
-                modal.classList.add('opacity-0');
-                modalContent.classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            });
-
-            document.getElementById('btn-jump-confirm').addEventListener('click', () => {
-                const val = parseInt(document.getElementById('jump-input').value);
-                if (val >= 1 && val <= vocabulary.length) {
-                    index = val - 1;
-                    update();
-                    document.getElementById('btn-jump-cancel').click();
-                    toast(`JUMPED TO #${val}`);
+        // TTS音声読み上げ
+        const getSpeakText = (htmlContent, isJapanese) => {
+            const temp = document.createElement('div');
+            temp.innerHTML = htmlContent;
+            if (!isJapanese) return temp.textContent;
+            let speakable = "";
+            temp.childNodes.forEach(node => {
+                if (node.nodeName === 'RUBY') {
+                    const rt = node.querySelector('rt');
+                    speakable += rt ? rt.textContent : node.textContent;
+                } else {
+                    speakable += node.textContent;
                 }
             });
+            return speakable || temp.textContent;
+        };
 
-            document.getElementById('speak-front').addEventListener('click', (e) => {
-                e.stopPropagation();
-                const word = vocabulary[index];
-                const content = mode === 'es-ja' ? word.es : word.ja;
-                const lang = mode === 'es-ja' ? 'es-ES' : 'ja-JP';
-                speak(content, lang);
-            });
+        const speak = (rawHtml, lang) => {
+            if (!window.speechSynthesis) { toast("TTS NOT SUPPORTED"); return; }
+            window.speechSynthesis.cancel();
+            const textToSpeak = getSpeakText(rawHtml, lang === 'ja-JP');
+            const u = new SpeechSynthesisUtterance(textToSpeak);
+            u.lang = lang;
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        };
 
-            document.getElementById('speak-back').addEventListener('click', (e) => {
-                e.stopPropagation();
-                const word = vocabulary[index];
-                const content = mode === 'es-ja' ? word.ja : word.es;
-                const lang = mode === 'es-ja' ? 'ja-JP' : 'es-ES';
-                speak(content, lang);
-            });
+        // イベント
+        document.getElementById('card-inner').addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            document.getElementById('card-inner').classList.toggle('is-flipped', isFlipped);
+        });
 
-            lucide.createIcons();
+        document.getElementById('btn-next').addEventListener('click', () => {
+            isFlipped = false;
+            document.getElementById('card-inner').classList.remove('is-flipped');
+            setTimeout(() => { index = (index + 1) % vocabulary.length; update(); }, 200);
+        });
+
+        document.getElementById('btn-prev').addEventListener('click', () => {
+            isFlipped = false;
+            document.getElementById('card-inner').classList.remove('is-flipped');
+            setTimeout(() => { index = (index - 1 + vocabulary.length) % vocabulary.length; update(); }, 200);
+        });
+
+        document.getElementById('category-select').addEventListener('change', (e) => {
+            currentCat = e.target.value;
+            vocabulary = vocabularyData[currentCat];
+            index = 0;
+            isFlipped = false;
+            document.getElementById('card-inner').classList.remove('is-flipped');
             update();
+            toast(`LOADED: ${currentCat}`);
+        });
+
+        document.getElementById('btn-sync').addEventListener('click', fetchSheetData);
+
+        document.getElementById('mode-es-ja').addEventListener('click', () => {
+            mode = 'es-ja';
+            document.getElementById('mode-es-ja').classList.add('btn-active');
+            document.getElementById('mode-ja-es').classList.remove('btn-active');
+            update();
+        });
+
+        document.getElementById('mode-ja-es').addEventListener('click', () => {
+            mode = 'ja-es';
+            document.getElementById('mode-ja-es').classList.add('btn-active');
+            document.getElementById('mode-es-ja').classList.remove('btn-active');
+            update();
+        });
+
+        document.getElementById('btn-shuffle').addEventListener('click', () => {
+            index = Math.floor(Math.random() * vocabulary.length);
+            update();
+            toast("SHUFFLED");
+        });
+
+        const modal = document.getElementById('jump-modal');
+        const modalContent = document.getElementById('jump-modal-content');
+        document.getElementById('btn-open-jump').addEventListener('click', () => {
+            document.getElementById('jump-max-display').textContent = vocabulary.length;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                document.getElementById('jump-input').focus();
+            }, 10);
+        });
+
+        document.getElementById('btn-jump-cancel').addEventListener('click', () => {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        });
+
+        document.getElementById('btn-jump-confirm').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('jump-input').value);
+            if (val >= 1 && val <= vocabulary.length) {
+                index = val - 1;
+                update();
+                document.getElementById('btn-jump-cancel').click();
+                toast(`JUMPED TO #${val}`);
+            }
+        });
+
+        document.getElementById('speak-front').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const word = vocabulary[index];
+            const content = mode === 'es-ja' ? word.es : word.ja;
+            const lang = mode === 'es-ja' ? 'es-ES' : 'ja-JP';
+            speak(content, lang);
+        });
+
+        document.getElementById('speak-back').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const word = vocabulary[index];
+            const content = mode === 'es-ja' ? word.ja : word.es;
+            const lang = mode === 'es-ja' ? 'ja-JP' : 'es-ES';
+            speak(content, lang);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            fetchSheetData();
         });
     </script>
 </body>
+
 </html>
